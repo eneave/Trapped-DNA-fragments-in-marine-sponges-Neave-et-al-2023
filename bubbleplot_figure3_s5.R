@@ -63,8 +63,7 @@ long.df <- long.df[c(1:7020),]
 long.df$log_reads <- log(long.df$reads)
 long.df$sqrt_reads <- sqrt(long.df$reads)
 
-## Calculate proportional read counts per location ##NOT SURE IF THIS CALCULATION IS CORRECT
-
+## Calculate proportional read counts per location 
 readcounts <- as.data.frame(colSums(motustf_100[,c(8:62)]))
 readcounts$long_id <- rownames(readcounts)
 long.df <- merge(long.df, readcounts, by.x = "long_id")
