@@ -141,6 +141,11 @@ NAB <- c("31.Gb","32.Gb","33.Gb",
          "42.Gh","43.Gh","44.Gh","45.Gh","46.Gh","47.Gh","48.Gh","49.Gh")
 A <- c("50.Gb","51.Gb","52.Pv","53.Pv","54.Pv")
 
+# New facet label names for region variable
+region.labs <- c("NEA", "NAB", "NA")
+names(region.labs) <- c("NE Atlantic", "North American Boreal", "Norwegian and Arctic Seas")
+
+
 #####
 ## Bubbleplot code
 #####
@@ -156,16 +161,16 @@ bp_final <-
                        guide = guide_colourbar(reverse = TRUE, barwidth = 1, barheight = 20), 
                        name = "Depth (m)") +
   scale_size_continuous(name = "Proportional \nread counts (%)",
-                        range = c(1, 5),
+                        range = c(1, 6),
                         limits = c(0,100),
-                        breaks = c(0, 1, 10, 30, 50),
-                        labels = c("< 1%","1-10%","10-30%","30-50%","> 50%")) + 
+                        breaks = c(0, 1, 10, 30, 50, 70),
+                        labels = c("< 1%","1-10%","10-30%","30-50%","50%-70%", "> 70%")) + 
   labs(x = "", y ="") + 
-  facet_grid(order ~ bioregion_nmds, scales = "free", space = "free") +
+  facet_grid(order ~ bioregion_nmds, scales = "free", space = "free", labeller = labeller(bioregion_nmds = region.labs)) +
   theme_light() +
-  theme(strip.background.y =element_rect(fill= "lightgrey"),
-        strip.background.x = element_blank(),
-        strip.text.x= element_blank(),
+  theme(strip.background.y = element_rect(fill= "lightgrey"),
+        strip.background.x = element_rect(fill= "lightgrey"),
+        strip.text.x= element_text(colour = "#000000"),
         panel.grid.major = element_line(colour = "white"),
         panel.grid.minor = element_line(colour = "white"), 
         axis.ticks = element_line(colour = "#000000"),
@@ -175,7 +180,6 @@ bp_final <-
         text = element_text(size = 14),
         legend.direction = "vertical", 
         legend.box = "vertical") 
-
 
 
 ggsave(filename="C:your_directory_here/figure4_final.tiff", 
