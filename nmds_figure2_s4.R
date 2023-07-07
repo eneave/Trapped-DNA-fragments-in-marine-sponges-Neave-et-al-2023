@@ -84,6 +84,9 @@ nmds_3_fishsp$depth_range <- factor(nmds_3_fishsp$depth_range,
 nmds_pafishsp$depth_range <- factor(nmds_pafishsp$depth_range,
                                     levels = c("80-200", "200-500", "500-800", "800-1200", "1200-1600", ">1600"))
 
+accum.depthrange.long$Grouping <- factor(accum.depthrange.long$Grouping,
+                                  levels = c("80-200", "200-500", "500-800", "800-1200", "1200-1600", ">1600"))
+
 nmds_fishsp$bioregion_nmds <- ifelse(nmds_fishsp$bioregion_costello== "Norwegian Sea", "Norwegian and Arctic Seas",
                                      ifelse(nmds_fishsp$bioregion_costello== "Arctic Seas", "Norwegian and Arctic Seas",
                                             ifelse(nmds_fishsp$bioregion_costello== "North American Boreal", "North American Boreal",
@@ -304,7 +307,9 @@ library(BiodiversityR)
 accum.depthrange <- accumcomp(fish_species_long, y = fig2nmds, factor = "depth_range", plotit = F)
 
 accum.depthrange.long <- accumcomp.long(accum.depthrange, ci=NA, label.freq=5)
-head(accum.depthrange.long)
+accum.depthrange.long$uperror <- accum.depthrange.long$Richness + accum.depthrange.long$SD
+accum.depthrange.long$lowerror <- accum.depthrange.long$Richness - accum.depthrange.long$SD
+View(accum.depthrange.long)
 
 f3b <- 
   ggplot(data=accum.depthrange.long, aes(x = Sites, y = Richness, ymax = UPR, ymin = LWR)) + 
@@ -312,55 +317,61 @@ f3b <-
   scale_y_continuous(expand=c(0, 0), limits = c(0, 55), sec.axis = dup_axis(labels=NULL, name=NULL)) +
   geom_line(aes(colour=Grouping), size=2) +
   geom_point( aes(colour=Grouping), size=4, alpha=0.9) +
-  geom_linerange() + 
+  geom_ribbon(aes(colour=Grouping, fill=after_scale(alpha(colour, alpha=0.2)), ymax = uperror, ymin = lowerror), 
+              show.legend=FALSE) + 
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
         axis.title.y = element_text(face = "bold", size = 14), 
         axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
         legend.text = element_text(size = 12, face ="bold", colour ="black"), 
-        legend.position = c(.97, .95),
+        legend.position = c(.99, .95),
         legend.justification = c("right", "top"),
         legend.background = element_blank(),
         legend.box.background = element_rect(colour = "black"),
         legend.key=element_blank(),
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2)) +
-  scale_color_manual(values = c("80-200" = "#fde725", "200-500" = "#7ad151","500-800" = "#22a884","800-1200" = "#2a788e",
+        scale_color_manual(values = c("80-200" = "#fde725", "200-500" = "#7ad151","500-800" = "#22a884","800-1200" = "#2a788e",
                                 "1200-1600" = "#414487",">1600" = "#440154")) +
   guides(colour = "legend") +
   labs(x = "No. of Sponge samples", y = "No. of Fish Species", colour = "Depth\nRange (m)") 
 
 
-accum.region <- accumcomp(fish_species_long, y = fig2nmds, factor = "bioregion_nmds", plotit = F)
+library(ggtext)
+fig2c_legend <- tibble(x=c(-0.2, 0.2),
+                       y=c(-0.3, -0.3),
+                       label=c("No MPA","MPA"))
 
-accum.region.long <- accumcomp.long(accum.region, ci=NA, label.freq=5)
-
-windows()
-ggplot(data=accum.region.long, aes(x = Sites, y = Richness, ymax = UPR, ymin = LWR)) + 
-  scale_x_continuous(expand=c(0, 1), sec.axis = dup_axis(labels=NULL, name=NULL)) +
-  scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
-  geom_line(aes(colour=Grouping), size=2) +
-  geom_point( aes(colour=Grouping), size=4, alpha=0.9) +
-  geom_linerange() + 
+f3c<-
+  ggplot(nmds_pa_NE.fishsp, aes(x = NMDS1, y = NMDS2)) + 
+  geom_point(size = 4, aes(shape = region), alpha=0.85)+ 
+  geom_point(size = 4, aes(shape = region, colour=mpa2), alpha=0.85, show.legend = F)+ 
+  geom_richtext(data = fig2c_legend, aes(x=x, y=y, label=label), colour = c("#00BFC4","#F8766D"), size = 6.5) +
+  annotate(geom = "text", x = -0.1, y= 0.35, label = "stress = 0.1711",size = 5,colour ="black")+
+  coord_cartesian(xlim = c(-0.4,0.4), ylim = c(-0.4,0.4)) +
+  #guides(shape=guide_legend(ncol=3,nrow=3,byrow=TRUE)) +
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
-        axis.title.y = element_text(face = "bold", size = 14), 
+        legend.text = element_text(size = 12, face ="bold", colour ="black"), 
+        legend.position = "right", axis.title.y = element_text(face = "bold", size = 14), 
         axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
         legend.title = element_text(size = 14, colour = "black", face = "bold"), 
-        legend.text = element_text(size = 12, face ="bold", colour ="black"), 
-        legend.key=element_blank(), #hides grey background in legend
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2)) +
-  scale_color_manual(values = c("NE Atlantic" = "#D55E00", 
-                                "North American Boreal" = "#009E73",
-                                "Norwegian and Arctic Seas" = "#CC79A7")) +
-  labs(x = "Sponge specimens", y = "Fish Species", colour = "Region")
-
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+        legend.key =  element_blank(),
+        legend.key.width = unit(0.5, "in")) + 
+  labs(x = "NMDS1", y = "NMDS2", shape = "Aggregation") +
+  scale_shape_manual(values=c(19,15,18,17,21,22,5), 
+                     labels=c("Faroe Shetland\nSponge Belt", "North of Shetland",
+                              "Norway", "Rockall Bank", "Shetland Shelf",
+                              "Sula Reef","Sweden")) 
 
 ## Make an accumulation curve for MPAs
 
 accum.mpa <- accumcomp(abund.pv, y = pc.pv, factor = "mpa2", plotit = F)
 
 accum.mpa.long <- accumcomp.long(accum.mpa, ci=NA, label.freq=2)
+accum.mpa.long$uperror <- accum.mpa.long$Richness + accum.mpa.long$SD
+accum.mpa.long$lowerror <- accum.mpa.long$Richness - accum.mpa.long$SD
 
 f3d <-
   ggplot(data=accum.mpa.long, aes(x = Sites, y = Richness, ymax = UPR, ymin = LWR)) + 
@@ -368,7 +379,8 @@ f3d <-
   scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
   geom_line(aes(colour=Grouping), size=2) +
   geom_point( aes(colour=Grouping), size=4, alpha=0.9) +
-  geom_linerange() + 
+  geom_ribbon(aes(colour=Grouping, fill=after_scale(alpha(colour, alpha=0.2)), ymax = uperror, ymin = lowerror), 
+              show.legend=FALSE) + 
   theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
         axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
         axis.title.y = element_text(face = "bold", size = 14), 
@@ -397,7 +409,7 @@ figure2 <-
   plot_grid(f3a, f3b, bottom_panel, labels = c("A", "B", ""), ncol = 1, rel_heights = c(2,1.1,1.3))
 
 
-ggsave(filename=c("C:/your_directory_here/fig2_nmds.tiff"), 
-       plot = figure2, width = 9.5, height = 14, dpi = 1000, units = "in")
+ggsave(filename=c("C:/your_directory_here/fig2_nmds.jpg"), 
+       plot = figure2, width = 8, height = 14, dpi = 1000, units = "in")
 
 
