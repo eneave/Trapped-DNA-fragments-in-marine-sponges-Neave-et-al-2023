@@ -4,7 +4,7 @@
 #################################################################################
 
 ## set working directory
-setwd("C:/Users/BESENEAV/OneDrive - Liverpool John Moores University/PhD/North Atlantic project/map")
+setwd("C:..your directory here/map")
 
 ## load packages; install first if necessary
 library(sf)
@@ -17,7 +17,7 @@ library(cowplot)
 
 ## Run 'preparing_metadata_for_plots.R' script to generate metadata used for maps
 ## Read in metadata for map
-mapdata2 <- read.csv("C:/Users/BESENEAV/OneDrive - Liverpool John Moores University/PhD/North Atlantic project/map/mapdata2_edit.csv")
+mapdata2 <- read.csv("C:..your directory here/map/mapdata2_edit.csv")
 
 
 ## Download shape files for map
@@ -141,7 +141,7 @@ pa3 <- ggplot(data = world) +
 final_map <-
   plot_grid(p3, pne3, pnab3, pa3, labels = c("A", "B", "C", "D"))
 
-ggsave(filename=c("C:/Users/beseneav/OneDrive - Liverpool John Moores University/PhD/North Atlantic project/map/fig1_final_forgithub.tiff"), 
+ggsave(filename=c("C:..your directory here/map/fig1_final_forgithub.tiff"), 
        plot = final_map, width = 11.2, height = 8.5, dpi = 1000, units = "in")
 
 
